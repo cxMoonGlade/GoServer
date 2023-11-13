@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"runtime"
 	"sync"
+	"time"
 )
 
 type Server struct {
@@ -65,6 +67,9 @@ func (this *Server) Handler(conn net.Conn) {
 
 	user.Online()
 
+	// monitor: active user
+	isLive := make(chan bool)
+
 	//接受客户端发送的消息
 	go func() {
 		buf := make([]byte, 4096)
@@ -84,13 +89,29 @@ func (this *Server) Handler(conn net.Conn) {
 			// abstract user msg(remove "\n")
 			msg := string(buf[:n-1])
 
+			// user is active now
+			isLive <- true
+
 			// broadcast the msg
 			user.MessageHandler(msg)
 		}
 	}()
 
 	// current handler block
-	select {}
+	for {
+		select{
+		case <-isLive:
+			// current user is active, reset the timer
+			// no need to do anything, because this can active select, it will reset the timer
+		case <- time.After(10 * time.Second):
+			// has exceed the time
+			// reset the user (force quit)
+			user.SendMsg("Over Time: Please Re-Login!")
+			conn.Close()
+			// quit the handler
+			runtime.Goexit()
+		}
+	}
 }
 
 //启动服务器的接口
