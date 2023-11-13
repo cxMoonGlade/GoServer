@@ -9,10 +9,13 @@ type User struct{
 	Addr string
 	C 	 chan string
 	conn net.Conn
+
+	// belongs to which server
+	server *Server
 }
 
 // Interface: create User, Passing in the connection 
-func NewUser (conn net.Conn) *User{
+func NewUser (conn net.Conn, server *Server) *User{
 	userAddr := conn.RemoteAddr().String()
 
 	user := &User{
@@ -20,11 +23,34 @@ func NewUser (conn net.Conn) *User{
 		Addr: userAddr,
 		C: make (chan string),
 		conn: conn,
+		server : server,
 	}
 	// start the monitor
 	go user.ListenMsg()
 	return user
 }
+
+func (this *User) Online(){
+	this.server.mapLock.Lock()
+	this.server.OnlineMap[this.Name] = this
+	this.server.mapLock.Unlock()
+
+	// boradcasting user online msg
+	this.server.BroadCast(this, "is ONLINE!")
+
+}
+
+func (this *User) Offline(){
+	this.server.mapLock.Lock()
+	delete(this.server.OnlineMap, this.Name)
+	this.server.BroadCast(this, "is OFFLINE")
+}
+
+func (this *User) MessageHandler(msg string){
+	this.server.BroadCast(this, msg)
+}
+
+
 
 // Listen current User Channel
 // once there is a msg, send to paired client

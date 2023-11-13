@@ -7,45 +7,45 @@ import (
 	"sync"
 )
 
-type Server struct{
+type Server struct {
 	Ip   string
 	Port int
 
 	// current online user list
-	OnlineMap map[string] *User
-	mapLock sync.RWMutex
+	OnlineMap map[string]*User
+	mapLock   sync.RWMutex
 
 	// channel to broadcast
 	Message chan string
 }
 
 // create a server interface
-func NewServer (ip string, port int) *Server{
+func NewServer(ip string, port int) *Server {
 	server := &Server{
-		Ip: ip,
-		Port: port,
-		OnlineMap: make (map[string] *User),
-		Message : make(chan string),
+		Ip:        ip,
+		Port:      port,
+		OnlineMap: make(map[string]*User),
+		Message:   make(chan string),
 	}
 	return server
 }
 
-func (this *Server) BroadCast(user *User, msg string){
+func (this *Server) BroadCast(user *User, msg string) {
 	sendMsg := "[" + user.Addr + "]" + user.Name + ":" + msg
 	this.Message <- sendMsg
 }
 
 // Goroutine to Listen Message broadcasting channel,
 // once there is a msg, send to all online user
-func (this *Server) ListenMsg(){
+func (this *Server) ListenMsg() {
 	for {
-		msg := <- this.Message
+		msg := <-this.Message
 
 		// sned msg to all online user
 		this.mapLock.Lock()
-		// OnlineMap : [Name string] User *User 
+		// OnlineMap : [Name string] User *User
 		// Get the User Instance which is the value
-		for _, cli := range this.OnlineMap{
+		for _, cli := range this.OnlineMap {
 			// send msg to User.C
 			//notify each user one by one on the map
 			cli.C <- msg
@@ -54,37 +54,32 @@ func (this *Server) ListenMsg(){
 	}
 }
 
-func (this *Server) Handler (conn net.Conn){
+func (this *Server) Handler(conn net.Conn) {
 	// TODO: this connection's bussiness
 
 	// connection established, get the user info
-	user := NewUser(conn)
-	// User online now, add to onlineMap
-	this.mapLock.Lock()
-	this.OnlineMap[user.Name] = user
-	this.mapLock.Unlock()
+	user := NewUser(conn, this)
 
-	// boradcasting user online msg
-	this.BroadCast(user, "is ONLINE!")
+	user.Online()
 
 	// receive the msg from client
-	go func(){
-		buf := make ([]byte, 4096)
+	go func() {
+		buf := make([]byte, 4096)
 		n, err := conn.Read(buf)
-		if n == 0{
-			this.BroadCast(user, "Offline")
+		if n == 0 {
+			user.Offline()
 			return
 		}
 		// if there is an err and not because of we reached the end of file
-		if err != nil && err != io.EOF{
+		if err != nil && err != io.EOF {
 			fmt.Println("Conn Read err", err)
 			return
 		}
 		// abstract user msg(remove "\n")
-		msg := string (buf[: n-1])
+		msg := string(buf[:n-1])
 
-		// broadcast the msg 
-		this.BroadCast(user, msg)
+		// broadcast the msg
+		user.MessageHandler(msg)
 	}()
 
 	// current handler block
@@ -93,10 +88,10 @@ func (this *Server) Handler (conn net.Conn){
 }
 
 // start server interface
-func (this *Server) Start(){
+func (this *Server) Start() {
 	// socker listen
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", this.Ip, this.Port) )
-	if err != nil{
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", this.Ip, this.Port))
+	if err != nil {
 		fmt.Println("net.Listen err: ", err)
 		return
 	}
@@ -109,7 +104,7 @@ func (this *Server) Start(){
 	for {
 		// accept
 		conn, err := listener.Accept()
-		if err!= nil {
+		if err != nil {
 			fmt.Println("listener accept err:", err)
 			continue
 		}
