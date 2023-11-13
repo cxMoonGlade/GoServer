@@ -78,6 +78,31 @@ func (this *User) MessageHandler(msg string){
 			this.Name = newName
 			this.SendMsg("you has updated your name: " + this.Name + "\n")
 		}
+	}else if len(msg) > 4 && msg[:3] == "to|" {
+		// msg format: to|name|msg content
+		
+		// 1. get the username
+		remoteName := strings.Split(msg, "|")[1]
+		if remoteName == ""{
+			this.SendMsg("message formate is incorrect.\nYou can try:to|Alex|Hello\n")
+			return
+		}
+		// 2. get user object from username
+		remoteUser, ok := this.server.OnlineMap[remoteName]
+		if !ok{
+			this.SendMsg("This user is not exist!\n")
+			return
+		}
+
+		// 3. get msg content, send msg to the receiver
+		content := strings.Split(msg, "|")[2]
+		if content == ""{
+			remoteUser.SendMsg(this.Name + "is very speechless for you\n")
+		}else{
+			remoteUser.SendMsg(this.Name+" said to you: " + content + "\n")
+		}
+
+
 	}else{
 		this.server.BroadCast(this, msg)
 	}
