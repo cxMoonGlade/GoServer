@@ -2,6 +2,7 @@ package main
 
 import (
 	"net"
+	"strings"
 )
 
 type User struct{
@@ -61,6 +62,22 @@ func (this *User) MessageHandler(msg string){
 		}
 		this.server.mapLock.Unlock()
 
+	}else if  len(msg) > 7 && msg[:7] == "rename|"{
+		// msg format: rename|Alex, rename is[0], Alex is[1]
+		newName := strings.Split(msg, "|")[1]
+		// determine if name is already exist
+		_, ok := this.server.OnlineMap[newName]
+		if ok{
+			this.SendMsg("Sorry, name is already taken.\n")
+		}else{
+			this.server.mapLock.Lock()
+			delete(this.server.OnlineMap, this.Name)
+			this.server.OnlineMap[newName] = this
+			this.server.mapLock.Unlock()
+
+			this.Name = newName
+			this.SendMsg("you has updated your name: " + this.Name + "\n")
+		}
 	}else{
 		this.server.BroadCast(this, msg)
 	}
