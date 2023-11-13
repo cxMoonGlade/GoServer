@@ -1,4 +1,4 @@
-# Chat Room Server & Client
+# Go Chat Room
 
 This is a Chat Room Server and Client written in Go. It provides a platform for users to connect, chat in public or private rooms, change their usernames, and stay connected in real-time.
 
