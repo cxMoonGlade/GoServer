@@ -9,13 +9,15 @@ go build -o client client.go
 '''
 
 then use
-'''bash
+```bash
 ./server
-'''
+```
+
+
 to run the server instance, and run
-'''bash
+```bash
 ./client
-...
+```
 in different terminal windows to run multiple client instances.
 
 You can also do 
