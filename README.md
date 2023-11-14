@@ -3,10 +3,10 @@
 This is a Chat Room Server and Client written in Go. It provides a platform for users to connect, chat in public or private rooms, change their usernames, and stay connected in real-time.
 
 ## How to Run
-'''bash
+```bash
 go build -o server server.go user.go main.go
 go build -o client client.go
-'''
+```
 
 then use
 ```bash
@@ -21,9 +21,9 @@ to run the server instance, and run
 in different terminal windows to run multiple client instances.
 
 You can also do 
-'''bash
+```bash
 ./client -h
-'''
+```
 to check the manual, or
 '''bash
 ./client -ip <Your Objected Ip Address> -port <Your Objected TCP Port Number>
