@@ -11,12 +11,14 @@ type Client struct{
 	ServerPort int
 	Name string
 	conn net.Conn
+	flag int // current mode
 }
 
 func NewClient(sip string, sport int) *Client{
-	client:=  &Client{
-		ServerIP: sip,
+	client := &Client{
+		ServerIP:   sip,
 		ServerPort: sport,
+		flag:       9,
 	}
 
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", sip, sport))
@@ -27,6 +29,51 @@ func NewClient(sip string, sport int) *Client{
 	client.conn = conn
 	return client
 }
+
+func (client *Client) menu() bool{
+	var flag int
+	fmt.Println("1. Broadcast mode")
+	fmt.Println("2. Private Chat mode")
+	fmt.Println("3. Update User Name")
+	fmt.Println("0. Exit")
+
+	fmt.Scanln(&flag)
+
+	if flag >= 0 && flag <= 3{
+		client.flag = flag
+		return true
+	}else{
+		fmt.Println(">>>>>Please Input Integer Number within Legal Range...")
+		return false
+	}
+}
+
+func (client *Client) Run(){
+	for client.flag != 0{
+		for client.menu() != true{
+
+		}
+		switch client.flag{
+		case 1:
+			// broadcast mode
+			fmt.Println("Broadcasting Mode Selected...")
+			break
+		case 2:
+			// private chat mode
+			fmt.Println("Private Chat Mode Selected...")
+			break
+		case 3:
+			// update user name
+			fmt.Println("Update User Name...")
+			break
+		case 0:
+			// Exit 
+			fmt.Print("Thx for Using, Bye...")
+			return
+		}
+	}
+}
+
 
 var sIP string
 var sPort int
@@ -50,5 +97,5 @@ func main(){
 	fmt.Println(">>>> Conncection Establish...")
 
 	// TODO: start Client Business
-	select{}
+	client.Run()
 }
