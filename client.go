@@ -1,9 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"net"
 	"flag"
+	"fmt"
+	"io"
+	"net"
+	"os"
 )
 
 type Client struct{
@@ -48,6 +50,26 @@ func (client *Client) menu() bool{
 	}
 }
 
+func (client *Client) UpdateUserName() bool{
+	fmt.Println(">>>>>Input Your New User Name:")
+	fmt.Scanln(&client.Name)
+
+	sendMsg := "rename|" + client.Name + "\n"
+
+	_, err := client.conn.Write([]byte(sendMsg))
+	if err!=nil{
+		fmt.Println("conn.Write err:", err)
+		return false
+	}
+	return true
+}
+
+// hanlder msg from server, print to stdout
+func (client *Client) ResponseHandler(){
+	// if clent.conn has data, directly copy to std, permananently block and moniting
+	io.Copy(os.Stdout, client.conn)
+	
+}
 func (client *Client) Run(){
 	for client.flag != 0{
 		for client.menu() != true{
@@ -64,7 +86,7 @@ func (client *Client) Run(){
 			break
 		case 3:
 			// update user name
-			fmt.Println("Update User Name...")
+			client.UpdateUserName()
 			break
 		case 0:
 			// Exit 
@@ -94,6 +116,9 @@ func main(){
 		fmt.Println((">>>>> Connection to Server Failed..."))
 		return
 	}
+
+	go client.ResponseHandler()
+	
 	fmt.Println(">>>> Conncection Establish...")
 
 	// TODO: start Client Business
