@@ -93,7 +93,6 @@ func (this *User) MessageHandler(msg string){
 			this.SendMsg("This user is not exist!\n")
 			return
 		}
-
 		// 3. get msg content, send msg to the receiver
 		content := strings.Split(msg, "|")[2]
 		if content == ""{
@@ -101,8 +100,6 @@ func (this *User) MessageHandler(msg string){
 		}else{
 			remoteUser.SendMsg(this.Name+" said to you: " + content + "\n")
 		}
-
-
 	}else{
 		this.server.BroadCast(this, msg)
 	}
