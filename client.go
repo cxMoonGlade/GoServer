@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"flag"
 )
 
 type Client struct{
@@ -27,8 +28,21 @@ func NewClient(sip string, sport int) *Client{
 	return client
 }
 
+var sIP string
+var sPort int
+
+// ./client -ip 127.0.0.1
+
+func init(){
+	flag.StringVar(&sIP, "ip", "127.0.0.1", "set server ip address(default 127.0.0.1)")
+	flag.IntVar(&sPort, "port", 8888, "set server tcp port(default 8888)")
+}
+
 func main(){
-	client:= NewClient("127.0.0.1", 8888)
+	// command line parse
+	flag.Parse()
+
+	client:= NewClient(sIP, sPort)
 	if client == nil{
 		fmt.Println((">>>>> Connection to Server Failed..."))
 		return
