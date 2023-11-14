@@ -95,7 +95,7 @@ func (this *User) MessageHandler(msg string){
 		}
 		// 3. get msg content, send msg to the receiver
 		content := strings.Split(msg, "|")[2]
-		if content == ""{
+		if content == "" || content == "\n"{
 			remoteUser.SendMsg(this.Name + "is very speechless for you\n")
 		}else{
 			remoteUser.SendMsg(this.Name+" said to you: " + content + "\n")
