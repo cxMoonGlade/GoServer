@@ -2,6 +2,35 @@
 
 This is a Chat Room Server and Client written in Go. It provides a platform for users to connect, chat in public or private rooms, change their usernames, and stay connected in real-time.
 
+## How to Run
+'''bash
+go build -o server server.go user.go main.go
+go build -o client client.go
+'''
+
+then use
+'''bash
+./server
+'''
+to run the server instance, and run
+'''bash
+./client
+...
+in different terminal windows to run multiple client instances.
+
+You can also do 
+'''bash
+./client -h
+'''
+to check the manual, or
+'''bash
+./client -ip <Your Objected Ip Address> -port <Your Objected TCP Port Number>
+'''
+-ip means set the ip address of the server
+
+-port means set the port number of the server
+
+
 ## Features
 
 ### Server
@@ -26,51 +55,15 @@ This is a Chat Room Server and Client written in Go. It provides a platform for 
 
 - **Private Chat**: Clients can initiate private conversations with other users for more personalized interactions.
 
+- **User Name Changing**: Users have the ability to change their usernames.
+
+- **Command Line Parsing**: Program can parse command line input to satisfy different needs
+
 ## Getting Started
 
 ### Prerequisites
 
 - Go (Golang) must be installed on your system.
-
-### Server
-
-1. Clone this repository to your local machine:
-
-   ```bash
-   git clone https://github.com/yourusername/chat-room.git
-   ```
-
-2. Navigate to the server directory:
-
-   ```bash
-   cd chat-room/server
-   ```
-
-3. Run the server:
-
-   ```bash
-   go run main.go
-   ```
-
-### Client
-
-1. Clone this repository to your local machine (if you haven't already):
-
-   ```bash
-   git clone https://github.com/yourusername/chat-room.git
-   ```
-
-2. Navigate to the client directory:
-
-   ```bash
-   cd chat-room/client
-   ```
-
-3. Compile and run the client application:
-
-   ```bash
-   go run main.go
-   ```
 
 ## Usage
 
